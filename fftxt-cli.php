@@ -3,9 +3,6 @@
 
 include dirname(__FILE__) . '/fftxt.php';
 
-echo "Running on commandline\n";
-// TODO parse arguments
-
 $options = parseArgs($argv);
 //print_r($options);
 //print_r($argv);
@@ -20,45 +17,30 @@ $data = parse($options[0]);
 $map = isset($options['map']) ? json_decode($options['map'], true) : array();
 $slice = isset($options['slice']) ? split(',', $options['slice']) : null;
 $template = isset($options['template']) ? $options['template'] : null;
-$output = isset($options['out']) ? $options['out'] : null;
+$output = isset($options['out']) ? $options['out'] : 'php://stdout';
 $header = isset($options['header']) ? $options['header'] : null;
 $footer = isset($options['footer']) ? $options['footer'] : null;
-//$map = json_encode(array('0' => 'name', 'asdf' => 'outro'));
-//print_r($map);
 
 if ($slice) {
     //print_r($slice);
     $data = array_slice($data, @$slice[0], @$slice[1]);
 }
 
-if ($output) {
-    // TODO verificar se termina com + e fazer append
-    $fp = fopen($output, 'w');
+// TODO verificar se termina com + e fazer append
+$fp = fopen($output, 'w');
 
-    if ($header) {
-        fputs($fp, render(array(), $header, $map));
-    }
-    foreach ($data as $row) {
-        fputs($fp, render($row, $template, $map));
-    }
-
-    if ($footer) {
-        fputs($fp, render(array(), $footer, $map));
-    }
-    fclose($fp);
+if ($header) {
+    fwrite($fp, render(array(), $header, $map));
 }
-else {
-    if ($header) {
-        echo render(array(), $header, $map);
-    }
-    foreach ($data as $row) {
-        echo render($row, $template, $map);
-    }
-    if ($footer) {
-        render(array(), $footer, $map);
-    }
-
+foreach ($data as $row) {
+    fwrite($fp, render($row, $template, $map));
 }
+
+if ($footer) {
+    fwrite($fp, render(array(), $footer, $map));
+}
+fclose($fp);
+
 
 
 function parseArgs($argv) {

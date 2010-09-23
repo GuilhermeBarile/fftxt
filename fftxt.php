@@ -90,8 +90,9 @@ function render($data, $template = null, $map = array()) {
             // TODO cache!
             $template = file_get_contents($template);
         }
-
+        
         return strtr($template, $tr);
+        //return utf8_encode(strtr($template, $tr));
 
     }
     else {

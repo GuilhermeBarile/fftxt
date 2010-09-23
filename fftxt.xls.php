@@ -6,7 +6,6 @@ register_handler('xls', 'handler_xls');
 
 function handler_xls($src) {
     $data = new Spreadsheet_Excel_Reader();
-    $data->setOutputEncoding('UTF-8');
     $data->read($src);
 
     return $data->sheets[0]['cells'];
@@ -1294,7 +1293,9 @@ class Spreadsheet_Excel_Reader
         //echo "ADD cel $row-$col $string\n";
         $this->sheets[$this->sn]['maxrow'] = max($this->sheets[$this->sn]['maxrow'], $row + $this->_rowoffset);
         $this->sheets[$this->sn]['maxcol'] = max($this->sheets[$this->sn]['maxcol'], $col + $this->_coloffset);
-        $this->sheets[$this->sn]['cells'][$row + $this->_rowoffset][$col + $this->_coloffset] = $string;
+
+        // guigouz: Added utf8_encode
+        $this->sheets[$this->sn]['cells'][$row + $this->_rowoffset][$col + $this->_coloffset] = utf8_encode($string);
         if ($raw)
             $this->sheets[$this->sn]['cellsInfo'][$row + $this->_rowoffset][$col + $this->_coloffset]['raw'] = $raw;
         if (isset($this->rectype))
